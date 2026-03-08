@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronicles - Explore by Generation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        :root {
+            --parchment: #f2e8d5;
+            --ink: #2c2c2c;
+            --gold: #d4af37;
+            --blood: #dc143c;
+            --brown: #8b4513;
+        }
+
+        body {
+            background-color: var(--parchment);
+            color: var(--ink);
+            font-family: 'IM Fell English', 'Microsoft YaHei', serif;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        }
+
+        .medieval-title {
+            font-family: 'Cinzel Decorative', cursive;
+        }
+
+        .uncial {
+            font-family: 'Uncial Antiqua', cursive;
+        }
+
+        .parchment-card {
+            background-color: rgba(255, 255, 255, 0.3);
+            border: 2px solid var(--brown);
+            box-shadow: inset 0 0 50px rgba(139, 69, 19, 0.1);
+            position: relative;
+        }
+
+        .parchment-card::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            border: 1px solid var(--brown);
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .gen-item {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .gen-item:hover {
+            background-color: rgba(139, 69, 19, 0.05);
+            border-left: 4px solid var(--gold);
+            transform: translateX(10px);
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(139, 69, 19, 0.1);
+            border-left-color: var(--brown);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen py-12 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-16">
+            <a href="index.html" class="inline-flex items-center text-sm text-[#8B4513] hover:text-[#A0522D] mb-8 transition-colors">
+                <i class="ri-arrow-left-line mr-2"></i> Back to Scriptorium
+            </a>
+            <h1 class="text-5xl md:text-6xl medieval-title mb-4">
+                <span class="text-6xl md:text-8xl text-[#DC143C]">E</span>xplore by <span class="text-[#D4AF37]">G</span>eneration
+            </h1>
+            <div class="w-32 h-1 bg-[#D4AF37] mx-auto mb-6"></div>
+            <p class="text-xl italic text-[#5D4037]">"Trace the bloodlines through the shifting tides of history."</p>
+        </header>
+
+        <!-- Content Area -->
+        <main id="toc-container" class="parchment-card p-8 md:p-12 rounded-lg">
+            <div id="loading" class="flex flex-col items-center justify-center py-20">
+                <div class="loading-spinner mb-4"></div>
+                <p class="text-[#8B4513] animate-pulse">Consulting the ancient scrolls...</p>
+            </div>
+            
+            <div id="gen-list" class="space-y-6 hidden">
+                <!-- Generation items will be injected here -->
+            </div>
+
+            <div id="error-msg" class="hidden text-center py-20">
+                <i class="ri-error-warning-line text-5xl text-[#DC143C] mb-4 block"></i>
+                <p class="text-xl text-[#8B4513]">Alas! The scrolls are missing or unreadable.</p>
+                <p class="text-sm mt-2 opacity-70">Please ensure 'content.md' exists in the public folder.</p>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-16 text-center text-[#8B4513] opacity-60 text-sm">
+            <p>&copy; Scriptorium Chronicles - Recorded by Cyansol Sirin</p>
+        </footer>
+    </div>
+
+    <script>
+        async function loadTOC() {
+            const container = document.getElementById('gen-list');
+            const loading = document.getElementById('loading');
+            const errorMsg = document.getElementById('error-msg');
+            const errorText = errorMsg.querySelector('p'); // To show specific error details
+
+            try {
+                console.log('Fetching content.md...');
+                const response = await fetch('content.md');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+                
+                let text = await response.text();
+                console.log('File loaded, length:', text.length);
+
+                // 1. Remove BOM (Byte Order Mark) if present - Common issue with Windows Notepad
+                if (text.charCodeAt(0) === 0xFEFF) {
+                    text = text.slice(1);
+                    console.log('BOM removed');
+                }
+
+                // 2. Regex to find headers
+                // Matches: # [GEN:1] Anything... or # [GEN:9、10] Anything...
+                const genRegex = /^\s*#+\s*(?:\\#\s*)?\\?\[GEN:([^\]]+)\\?\]\s+(.*)$/gm;
+                
+                let match;
+                const generations = [];
+
+                while ((match = genRegex.exec(text)) !== null) {
+                    const genContent = match[1];
+                    const title = match[2].trim();
+                    
+                    // Extract all numbers from the GEN block (handles 、 & , etc.)
+                    const numbers = genContent.match(/\d+/g);
+                    if (numbers) {
+                        numbers.forEach(num => {
+                            console.log('Found generation:', num, title);
+                            generations.push({
+                                id: num,
+                                title: title
+                            });
+                        });
+                    }
+                }
+
+                if (generations.length === 0) {
+                    console.warn('No generations found matching the pattern.');
+                    console.log('First 500 chars of text:', text.substring(0, 500));
+                    throw new Error('No headers found with format: # [GEN:X] Title');
+                }
+
+                // Sort generations by ID just in case
+                generations.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+                loading.classList.add('hidden');
+                container.classList.remove('hidden');
+                
+                // Clear container before adding (in case of re-runs)
+                container.innerHTML = '';
+
+                generations.forEach(gen => {
+                    const item = document.createElement('a');
+                    item.href = `reader.html?gen=${gen.id}`;
+                    item.className = 'gen-item block p-6 rounded bg-white/20 hover:bg-white/40 shadow-sm group';
+                    item.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-xs uppercase tracking-widest text-[#D4AF37] font-bold mb-1 block">Generation ${gen.id}</span>
+                                <h2 class="text-2xl md:text-3xl medieval-title group-hover:text-[#DC143C] transition-colors">${gen.title}</h2>
+                            </div>
+                            <i class="ri-quill-pen-line text-3xl text-[#8B4513] opacity-20 group-hover:opacity-100 transition-all"></i>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+
+            } catch (error) {
+                console.error('Error loading TOC:', error);
+                loading.classList.add('hidden');
+                errorMsg.classList.remove('hidden');
+                
+                // Optional: Show technical error in console or UI if needed
+                // errorText.textContent += ` (${error.message})`; 
+            }
+        }
+
+        window.onload = loadTOC;
+    </script>
+</body>
+</html>

@@ -23,9 +23,9 @@
     <script>
         const CONFIG = {
             markdownFile: 'content.md',
-            themeColor: '#8a1c1c', // Rubrication red
+            themeColor: '#8a1c1c', // Reverted to deep red
             baseFontSize: '19px',
-            parchmentColor: '#fdf6e3', // Solarized light-ish
+            parchmentColor: '#fdfaf3', // Lightened parchment
             goldColor: '#d4af37'
         };
 
@@ -37,7 +37,7 @@
                         parchment: CONFIG.parchmentColor,
                         rubric: CONFIG.themeColor,
                         gold: CONFIG.goldColor,
-                        ink: '#2b2b2b',
+                        ink: '#2c2c2c', // Darker ink for better contrast
                     },
                     fontFamily: {
                         'medieval-header': ['"Uncial Antiqua"', '"Microsoft YaHei"', 'sans-serif'],
@@ -46,7 +46,7 @@
                         'medieval-deco': ['"Cinzel Decorative"', 'cursive'],
                     },
                     backgroundImage: {
-                        'parchment-texture': "url('https://www.transparenttextures.com/patterns/aged-paper.png')",
+                        'parchment-texture': "url('https://www.transparenttextures.com/patterns/paper-fibers.png')", // Changed to match TOC
                     }
                 }
             }
@@ -62,16 +62,16 @@
             background: #eaddcf;
         }
         ::-webkit-scrollbar-thumb {
-            background: #8a1c1c;
+            background: #8b4513;
             border: 2px solid #eaddcf;
             border-radius: 6px;
         }
 
         /* Typography & Base */
         body {
-            background-color: #fdf6e3;
-            background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png'); /* Subtle noise */
-            color: #2b2b2b;
+            background-color: #f2e8d5; /* Updated */
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png'); /* Updated */
+            color: #2c2c2c;
             /* 1. 字体改为微软雅黑优先，统一中英文显示 */
             font-family: 'Microsoft YaHei', 'Heiti SC', 'SimHei', sans-serif;
             font-size: 19px; 
@@ -83,7 +83,7 @@
         #content h1, #content h2, #content h3, #content h4, #content h5, #content h6,
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Cinzel Decorative', 'Microsoft YaHei', cursive;
-            color: #8a1c1c;
+            color: #8a1c1c; /* Reverted to deep red */
             line-height: 1.3;
             font-weight: 700;
         }
@@ -96,6 +96,7 @@
             padding-bottom: 1.5rem; 
             margin-top: 2rem !important; /* Increased top margin */
             margin-bottom: 3rem !important; 
+            color: #8a1c1c; /* Deep red */
         }
         
         #content h2, h2 { 
@@ -133,7 +134,8 @@
         }
 
         /* Footnotes Styles */
-        .footnote-ref {
+        /* Footnotes Styles - Increased Specificity */
+        #content .footnote-ref {
             display: inline-block;
             vertical-align: super;
             font-size: 0.7em;
@@ -150,18 +152,19 @@
             font-weight: bold;
             transition: all 0.2s;
             user-select: none;
+            text-decoration: none;
         }
-        .footnote-ref:hover, .footnote-ref.active {
+        #content .footnote-ref:hover, #content .footnote-ref.active {
             background-color: #8a1c1c;
-            color: #fdf6e3;
+            color: #fdfaf3;
         }
         
         /* Popover Bubble */
         #footnote-popover {
             position: absolute;
-            background-color: #fdf6e3;
+            background-color: #fdfaf3; /* Match article background */
             border: 2px solid #d4af37;
-            color: #2b2b2b;
+            color: #2c2c2c;
             padding: 12px 16px;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
@@ -189,7 +192,7 @@
             margin-left: -6px;
             width: 10px;
             height: 10px;
-            background: #fdf6e3;
+            background: #fdfaf3;
             border-bottom: 2px solid #d4af37;
             border-right: 2px solid #d4af37;
             transform: rotate(45deg);
@@ -233,6 +236,14 @@
             font-weight: bold;
             border-left: 3px solid #d4af37;
             padding-left: 0.5rem;
+        }
+
+        /* Content Paper */
+        article {
+            background-color: rgba(253, 250, 243, 0.95); /* Lightened and more opaque for readability */
+            backdrop-filter: blur(2px);
+            border: 2px solid #8a1c1c;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1), inset 0 0 60px rgba(138, 28, 28, 0.05);
         }
 
         /* Marginalia Animation */
@@ -319,83 +330,14 @@
 </a>
 
         <!-- Content Paper -->
-        <article class="bg-parchment shadow-2xl border border-stone-300 p-8 md:p-16 min-h-[80vh] relative mt-16 md:mt-0">
+        <article class="shadow-2xl p-8 md:p-16 min-h-[80vh] relative mt-16 md:mt-0">
             <!-- Corner Decorations -->
             <div class="absolute top-0 left-0 w-16 h-16 border-t-4 border-l-4 border-gold rounded-tl-lg"></div>
             <div class="absolute top-0 right-0 w-16 h-16 border-t-4 border-r-4 border-gold rounded-tr-lg"></div>
             <div class="absolute bottom-0 left-0 w-16 h-16 border-b-4 border-l-4 border-gold rounded-bl-lg"></div>
             <div class="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 border-gold rounded-br-lg"></div>
 
-            <!-- Prologue Section (Embedded) -->
-            <section id="prologue" class="mb-16 border-b-2 border-rubric/30 pb-12">
-                <h1 class="text-4xl md:text-5xl text-center text-rubric font-medieval-header mb-8 border-b-2 border-gold pb-4">Foreword: Things to Know Before Reading</h1>
-                
-                <div class="bg-rubric/5 border-l-4 border-rubric p-6 my-8 rounded-r-lg text-stone-700">
-                    <strong class="block text-rubric text-lg mb-2 not-italic">【核心声明】</strong>
-                    本故事为作者出于自娱自乐之目的创作，内容多有随意之处。
-                </div>
-
-                <div class="prose prose-stone max-w-none font-medieval-body">
-                    <h3 class="text-2xl text-rubric font-medieval-header mt-8 mb-4">一、 创作初衷与叙事性质</h3>
-                    <ul class="list-disc pl-5 space-y-2 marker:text-rubric">
-                        <li><strong>家族史流水账</strong>：本作品基于作者对「考据姓名」与「虚构族谱」的个人偏好。叙事本质为虚构家族之延续记录，部分世代具备完整情节，部分仅为梗概记录。</li>
-                        <li><strong>虚构英格兰设定</strong>：
-                            <ul class="list-circle pl-5 mt-2 space-y-1 text-stone-600">
-                                <li><strong>历史考据</strong>：对于重大历史节点（如 1066诺曼征服、玫瑰战争等）确保其按史实发生，但细节不作过度考据，历史人物均为艺术加工版本。</li>
-                                <li><strong>虚构地理</strong>：包含多个虚构领地（男爵领级别）及简化的贵族礼仪系统。</li>
-                            </ul>
-                        </li>
-                        <li><strong>叙事风格</strong>：文内会不时出现姓名学解说及现代用语。这并非严谨的历史剧，请以虚构家族史视角阅读。</li>
-                    </ul>
-
-                    <hr class="border-rubric/20 my-8 w-1/2 mx-auto">
-
-                    <h3 class="text-2xl text-rubric font-medieval-header mt-8 mb-4">二、 核心规则：线粒体继承</h3>
-                    <p><strong>本故事之剧情视角严格遵循作者自创的「线粒体继承」规则。</strong></p>
-                    
-                    <blockquote class="border-l-4 border-gold bg-gold/10 p-4 my-4 not-italic">
-                        <strong>基本假设</strong>：该家族线粒体从始祖开始不发生突变。
-                    </blockquote>
-
-                    <ol class="list-decimal pl-5 space-y-2 marker:text-rubric marker:font-bold">
-                        <li><strong>线粒体夏娃</strong>：<strong>始祖，艾尔芙温（Aelfwyn, Gen 1）</strong></li>
-                        <li><strong>继承法规则</strong>：每一代的故事主角<strong>必须</strong>拥有与线粒体夏娃相同的线粒体。</li>
-                        <li><strong>多主角情况</strong>：若该代有多个主角，其中<strong>至少一人</strong>需符合线粒体继承条件。</li>
-                    </ol>
-
-                    <hr class="border-rubric/20 my-8 w-1/2 mx-auto">
-
-                    <h3 class="text-2xl text-rubric font-medieval-header mt-8 mb-4">三、 姓名标注规范</h3>
-                    <p>基于姓名学研究的主旨，角色名在必要标注时，均会附带<strong>英文或对应语言原文</strong>。</p>
-
-                    <div class="overflow-x-auto my-6">
-                        <table class="w-full text-left border-collapse border border-rubric/20">
-                            <thead>
-                                <tr class="bg-rubric/10 text-rubric">
-                                    <th class="p-3 border border-rubric/20 font-medieval-header">标注格式</th>
-                                    <th class="p-3 border border-rubric/20 font-medieval-header">适用角色类型说明</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="hover:bg-rubric/5">
-                                    <td class="p-3 border border-rubric/20 font-bold font-mono text-sm">(Name, Gen X)</td>
-                                    <td class="p-3 border border-rubric/20"><strong>核心原创人物</strong>：与始祖艾尔芙温拥有相同线粒体</td>
-                                </tr>
-                                <tr class="hover:bg-rubric/5">
-                                    <td class="p-3 border border-rubric/20 font-bold font-mono text-sm">(Name)</td>
-                                    <td class="p-3 border border-rubric/20"><strong>普通原创人物</strong></td>
-                                </tr>
-                                <tr class="hover:bg-rubric/5">
-                                    <td class="p-3 border border-rubric/20 font-bold font-mono text-sm">脚注</td>
-                                    <td class="p-3 border border-rubric/20"><strong>真实历史人物</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <p class="text-center font-medieval-deco text-xl text-rubric mt-12">Thank you for your patience in reading. Have a pleasant journey.</p>
-                </div>
-            </section>
+            <!-- Prologue Section (Removed) -->
 
             <!-- Loading State -->
             <div id="loading" class="flex flex-col items-center justify-center py-20">
@@ -413,6 +355,25 @@
             <!-- Markdown Content -->
             <div id="content" class="prose prose-stone max-w-none hidden">
                 <!-- Content injected here -->
+            </div>
+
+            <!-- Generation Navigation -->
+            <div id="generation-nav" class="hidden mt-12 pt-8 border-t-2 border-gold/30 flex justify-between items-center font-medieval-toc">
+                <a id="prev-gen" href="#" class="group flex items-center gap-2 text-rubric hover:text-gold transition-colors invisible">
+                    <span class="text-2xl">«</span>
+                    <div class="flex flex-col">
+                        <span class="text-xs opacity-60 uppercase tracking-widest">Previous</span>
+                        <span class="text-sm md:text-base">Generation</span>
+                    </div>
+                </a>
+                <div class="flex-grow"></div>
+                <a id="next-gen" href="#" class="group flex items-center gap-2 text-rubric hover:text-gold transition-colors text-right invisible">
+                    <div class="flex flex-col">
+                        <span class="text-xs opacity-60 uppercase tracking-widest">Next</span>
+                        <span class="text-sm md:text-base">Generation</span>
+                    </div>
+                    <span class="text-2xl">»</span>
+                </a>
             </div>
             
             <!-- Footnote Popover Container -->
@@ -443,33 +404,134 @@
             });
 
             // Fetch and Render
+            const urlParams = new URLSearchParams(window.location.search);
+            const genId = urlParams.get('gen');
+
             fetch(CONFIG.markdownFile)
                 .then(response => {
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return response.text();
                 })
                 .then(markdown => {
+                    let finalMarkdown = markdown;
+
+                    // --- Logic for "Explore by Generation" ---
+                    // 1. Extract all unique generation IDs from the entire markdown to build the sequence
+                    const allGens = [];
+                    const genMarkerRegex = /\[GEN:([^\]]+)\]/g;
+                    let m;
+                    while ((m = genMarkerRegex.exec(markdown)) !== null) {
+                        const nums = m[1].match(/\d+/g);
+                        if (nums) {
+                            nums.forEach(n => {
+                                const val = parseInt(n);
+                                if (!allGens.includes(val)) allGens.push(val);
+                            });
+                        }
+                    }
+                    allGens.sort((a, b) => a - b);
+
+                    if (genId) {
+                        // 1. Find all headers that contain at least one [GEN:...] tag
+                        const headerRegex = /^\s*#+.*\[GEN:[^\]]+\].*$/gm;
+                        
+                        const sections = {};
+                        const headers = [];
+                        let match;
+
+                        // Remove BOM if present
+                        if (markdown.charCodeAt(0) === 0xFEFF) {
+                            markdown = markdown.slice(1);
+                        }
+
+                        // Find all header positions
+                        while ((match = headerRegex.exec(markdown)) !== null) {
+                            headers.push({
+                                index: match.index,
+                                text: match[0]
+                            });
+                        }
+
+                        // Map content to all GEN IDs found in each header
+                        for (let i = 0; i < headers.length; i++) {
+                            const start = headers[i].index;
+                            const end = (i + 1 < headers.length) ? headers[i + 1].index : markdown.length;
+                            const sectionContent = markdown.substring(start, end);
+                            
+                            // Extract all [GEN:...] blocks
+                            const genBlockRegex = /\[GEN:([^\]]+)\]/g;
+                            let blockMatch;
+                            while ((blockMatch = genBlockRegex.exec(headers[i].text)) !== null) {
+                                // Extract all numbers from the block (handles 、 & , etc.)
+                                const numbers = blockMatch[1].match(/\d+/g);
+                                if (numbers) {
+                                    numbers.forEach(num => {
+                                        sections[parseInt(num)] = sectionContent;
+                                    });
+                                }
+                            }
+                        }
+
+                        // Select the requested generation
+                        if (sections[parseInt(genId)]) {
+                            finalMarkdown = sections[parseInt(genId)];
+                        }
+                    }
+
+                    // 2. Title Cleanup: Remove all [GEN:...] tags and escaped chars for clean display
+                    // This now handles flexible formats like [GEN:9、10] or [GEN:9&10]
+                    finalMarkdown = finalMarkdown.replace(/^(#+)\s*(?:(?:\\#\s*)?\\?\[GEN:[^\]]+\\?\]\s*)+/gm, '$1 ');
+
                     // 2. Pre-process Markdown for Footnotes: 
-                    // Support both [1](content) and **[1](content)** formats
-                    // We do this BEFORE marked parses it, so it doesn't become a standard link.
-                    const footnoteRegex = /(?:\*\*)?\[(\d+)\]\((.*?)\)(?:\*\*)?/g;
-                    const processedMarkdown = markdown.replace(footnoteRegex, (match, num, content) => {
+                    // Support [1](content) format, handling newlines, spaces, and full-width parentheses.
+                    // We use placeholders to prevent Marked.js from escaping the HTML tags.
+                    // Also consumes preceding backslashes to clean up potential escape artifacts.
+                    const footnoteMap = new Map();
+                    const footnoteRegex = /(?:\\\s*)?\[\s*(\d+)\s*\]\s*[\(\uff08]([\s\S]*?)[\)\uff09]/g;
+                    
+                    const processedMarkdown = finalMarkdown.replace(footnoteRegex, (match, num, content) => {
+                        // Create a unique placeholder (using underscores to avoid Markdown list confusion)
+                        const placeholder = `FOOTNOTE_PLACEHOLDER_${num}_${Math.random().toString(36).substr(2, 9)}`;
+                        
                         // Encode content to be safe in data attribute
-                        const safeContent = content.replace(/"/g, '&quot;');
-                        return `<sup class="footnote-ref" data-content="${safeContent}">${num}</sup>`;
+                        const safeContent = content
+                            .replace(/&/g, '&amp;')
+                            .replace(/"/g, '&quot;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;');
+                        
+                        footnoteMap.set(placeholder, `<sup class="footnote-ref" data-content="${safeContent}">${num}</sup>`);
+                        return placeholder;
                     });
 
                     // Configure Marked
+                    // Disable indented code blocks to prevent HTML escaping inside paragraphs
+                    marked.use({
+                        tokenizer: {
+                            code(src) {
+                                return undefined; // Disable indented code blocks
+                            }
+                        }
+                    });
+
                     marked.setOptions({
                         highlight: function(code, lang) {
                             const language = highlight.getLanguage(lang) ? lang : 'plaintext';
                             return highlight.highlight(code, { language }).value;
                         },
-                        langPrefix: 'hljs language-'
+                        langPrefix: 'hljs language-',
+                        sanitize: false // Ensure HTML is not escaped
                     });
 
                     // Parse Markdown
-                    const htmlContent = marked.parse(processedMarkdown);
+                    let htmlContent = marked.parse(processedMarkdown);
+                    
+                    // Restore Footnotes
+                    // Use a function for replacement to prevent special pattern substitution (like $')
+                    footnoteMap.forEach((html, placeholder) => {
+                        htmlContent = htmlContent.replace(placeholder, () => html);
+                    });
+                    
                     contentDiv.innerHTML = htmlContent;
 
                     // Generate TOC
@@ -481,6 +543,9 @@
                     // Show Content
                     loadingDiv.classList.add('hidden');
                     contentDiv.classList.remove('hidden');
+
+                    // Setup Navigation
+                    setupGenerationNav(allGens, genId);
                 })
                 .catch(err => {
                     console.error('Fetch error:', err);
@@ -617,6 +682,33 @@
                     if (activeRef) {
                         activeRef.classList.remove('active');
                         activeRef = null;
+                    }
+                }
+            }
+
+            function setupGenerationNav(allGens, currentGenId) {
+                if (!currentGenId || allGens.length === 0) return;
+
+                const navDiv = document.getElementById('generation-nav');
+                const prevBtn = document.getElementById('prev-gen');
+                const nextBtn = document.getElementById('next-gen');
+                
+                const currentGen = parseInt(currentGenId);
+                const currentIndex = allGens.indexOf(currentGen);
+
+                if (currentIndex !== -1) {
+                    navDiv.classList.remove('hidden');
+
+                    // Previous Button
+                    if (currentIndex > 0) {
+                        prevBtn.href = `?gen=${allGens[currentIndex - 1]}`;
+                        prevBtn.classList.remove('invisible');
+                    }
+
+                    // Next Button
+                    if (currentIndex < allGens.length - 1) {
+                        nextBtn.href = `?gen=${allGens[currentIndex + 1]}`;
+                        nextBtn.classList.remove('invisible');
                     }
                 }
             }
