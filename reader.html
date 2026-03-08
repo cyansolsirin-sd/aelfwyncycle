@@ -317,6 +317,19 @@
     </span>
 </a>
 
+<!-- Back to TOC Button -->
+<a href="./toc.html" class="fixed top-20 left-6 z-50 group flex items-center gap-2 transition-all duration-300">
+    <div class="w-10 h-10 bg-parchment border-2 border-rubric rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform overflow-hidden">
+        <img src="rabbit-icon2.jpg" 
+             alt="Back to TOC" 
+             onerror="this.style.display='none'; if(!this.nextElementSibling) { this.parentElement.insertAdjacentHTML('beforeend', '<span class=\'text-rubric text-xl\'>≡</span>'); }"
+             class="w-full h-full object-cover opacity-80 group-hover:opacity-100">
+    </div>
+    <span class="font-medieval-toc text-rubric text-lg opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 bg-parchment/90 px-2 py-1 rounded border border-gold shadow-sm whitespace-nowrap">
+        Back to Table of Contents
+    </span>
+</a>
+
         <!-- Content Paper -->
         <article class="shadow-2xl p-8 md:p-16 min-h-[80vh] relative mt-16 md:mt-0">
             <!-- Corner Decorations -->
@@ -371,13 +384,13 @@
 
         <!-- Footer -->
         <footer class="relative text-center mt-12 mb-8 text-stone-500 font-medieval-body text-sm">
-            <p>Illuminated by Tailwind & Marked</p>
+            <p>Written by the hand of Lady Cyansol Sirin</p>
             <p class="text-xs opacity-50">Anno Domini MMXXV</p>
 
             <!-- Marginalia (Left - Rabbit) -->
             <div class="fixed bottom-0 left-0 w-32 md:w-64 z-50 pointer-events-none">
                 <img src="rabbit.png" 
-                     alt="Medieval Rabbit with Axe" 
+                     alt="Medieval Rabbit" 
                      onerror="this.style.display='none'"
                      class="w-full opacity-90">
             </div>

@@ -198,6 +198,50 @@
 .corner-bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; }
 .corner-br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
 
+/* =========================================
+   移动端适配 (Mobile Optimization)
+   ========================================= */
+@media (max-width: 768px) {
+    /* 1. 减小容器内边距，给内容腾出空间 */
+    .parchment-container {
+        padding: 20px !important;
+        margin: 20px auto !important;
+        width: 95% !important;
+    }
+
+    /* 2. 时间轴改为垂直堆叠布局 */
+    .timeline-node {
+        flex-direction: column !important;
+        margin-bottom: 4rem !important;
+    }
+    
+    /* 3. 让左右两侧的内容块变宽，并居中对齐 */
+    .timeline-node > div[class*="w-5/12"] {
+        width: 100% !important;
+        padding: 0 !important;
+        text-align: center !important;
+        margin-bottom: 1rem;
+    }
+
+    /* 4. 隐藏中间的垂直线（手机上太挤了，隐藏更清爽） */
+    .timeline-line {
+        display: none;
+    }
+
+    /* 5. 调整中间图标的位置 */
+    .timeline-marker {
+        margin: 10px auto;
+    }
+
+    /* 6. 调整各级标题大小，防止换行溢出 */
+    h1 { font-size: 2.5rem !important; line-height: 1.2 !important; }
+    h2 { font-size: 2rem !important; }
+    h3 { font-size: 1.5rem !important; }
+    
+    /* 7. 调整 Header 内边距 */
+    header { padding: 2rem 1rem !important; }
+}
+
     </style>
 </head>
 <body>
