@@ -276,20 +276,8 @@
     <!-- Main Container -->
     <main class="w-full max-w-[900px] relative">
         
-        <!-- Marginalia (Left - Rabbit) -->
-        <div class="fixed bottom-4 left-4 md:bottom-10 md:left-10 w-32 md:w-40 marginalia opacity-90 z-10 pointer-events-none">
-            <!-- 
-                IMPORTANT: 
-                1. Download the rabbit image.
-                2. Rename it to "rabbit.jpg".
-                3. Place it in the same folder as this index.html file.
-            -->
-            <img src="rabbit.jpg" 
-                 alt="Medieval Rabbit with Axe" 
-                 onerror="this.style.display='none'; this.parentElement.innerHTML += '<div class=\'bg-rubric text-parchment p-2 rounded text-xs text-center border-2 border-gold\'>Missing: rabbit.jpg<br>(Download & place in folder)</div>'"
-                 class="w-full rounded-lg border-2 border-gold shadow-lg mix-blend-multiply filter sepia-[0.3]">
-            <p class="text-center font-medieval-header text-xs mt-2 text-rubric bg-parchment/80 rounded px-2">Cave Canem</p>
-        </div>
+        <!-- Marginalia (Left - Rabbit) - Moved to inside article -->
+
 
         <!-- Marginalia (Right - TOC) -->
         <aside class="hidden xl:block fixed right-8 top-24 w-64 p-6 bg-parchment/90 border-2 border-gold rounded-lg shadow-xl backdrop-blur-sm max-h-[80vh] overflow-y-auto">
@@ -378,12 +366,21 @@
             
             <!-- Footnote Popover Container -->
             <div id="footnote-popover"></div>
+
         </article>
 
         <!-- Footer -->
-        <footer class="text-center mt-12 mb-8 text-stone-500 font-medieval-body text-sm">
+        <footer class="relative text-center mt-12 mb-8 text-stone-500 font-medieval-body text-sm">
             <p>Illuminated by Tailwind & Marked</p>
             <p class="text-xs opacity-50">Anno Domini MMXXV</p>
+
+            <!-- Marginalia (Left - Rabbit) -->
+            <div class="fixed bottom-0 left-0 w-32 md:w-64 z-50 pointer-events-none">
+                <img src="rabbit.png" 
+                     alt="Medieval Rabbit with Axe" 
+                     onerror="this.style.display='none'"
+                     class="w-full opacity-90">
+            </div>
         </footer>
 
     </main>
@@ -483,26 +480,59 @@
                     finalMarkdown = finalMarkdown.replace(/^(#+)\s*(?:(?:\\#\s*)?\\?\[GEN:[^\]]+\\?\]\s*)+/gm, '$1 ');
 
                     // 2. Pre-process Markdown for Footnotes: 
-                    // Support [1](content) format, handling newlines, spaces, and full-width parentheses.
-                    // We use placeholders to prevent Marked.js from escaping the HTML tags.
-                    // Also consumes preceding backslashes to clean up potential escape artifacts.
+                    // Support [1](content) format, handling nested parentheses.
                     const footnoteMap = new Map();
-                    const footnoteRegex = /(?:\\\s*)?\[\s*(\d+)\s*\]\s*[\(\uff08]([\s\S]*?)[\)\uff09]/g;
-                    
-                    const processedMarkdown = finalMarkdown.replace(footnoteRegex, (match, num, content) => {
-                        // Create a unique placeholder (using underscores to avoid Markdown list confusion)
-                        const placeholder = `FOOTNOTE_PLACEHOLDER_${num}_${Math.random().toString(36).substr(2, 9)}`;
+                    let processedMarkdown = '';
+                    let currentIndex = 0;
+                    const startRegex = /(?:\\\s*)?\[\s*(\d+)\s*\]\s*([\(\uff08])/g;
+                    let match;
+
+                    while ((match = startRegex.exec(finalMarkdown)) !== null) {
+                        // Append text before the match
+                        processedMarkdown += finalMarkdown.substring(currentIndex, match.index);
                         
-                        // Encode content to be safe in data attribute
-                        const safeContent = content
-                            .replace(/&/g, '&amp;')
-                            .replace(/"/g, '&quot;')
-                            .replace(/</g, '&lt;')
-                            .replace(/>/g, '&gt;');
+                        const num = match[1];
+                        const contentStartIndex = startRegex.lastIndex;
                         
-                        footnoteMap.set(placeholder, `<sup class="footnote-ref" data-content="${safeContent}">${num}</sup>`);
-                        return placeholder;
-                    });
+                        let balance = 1;
+                        let contentEndIndex = contentStartIndex;
+                        let foundEnd = false;
+                        
+                        for (; contentEndIndex < finalMarkdown.length; contentEndIndex++) {
+                            const char = finalMarkdown[contentEndIndex];
+                            if (char === '(' || char === '（') {
+                                balance++;
+                            } else if (char === ')' || char === '）') {
+                                balance--;
+                            }
+                            
+                            if (balance === 0) {
+                                foundEnd = true;
+                                break;
+                            }
+                        }
+                        
+                        if (foundEnd) {
+                            const content = finalMarkdown.substring(contentStartIndex, contentEndIndex);
+                            const placeholder = `FOOTNOTE_PLACEHOLDER_${num}_${Math.random().toString(36).substr(2, 9)}`;
+                            
+                            const safeContent = content
+                                .replace(/&/g, '&amp;')
+                                .replace(/"/g, '&quot;')
+                                .replace(/</g, '&lt;')
+                                .replace(/>/g, '&gt;');
+                            
+                            footnoteMap.set(placeholder, `<sup class="footnote-ref" data-content="${safeContent}">${num}</sup>`);
+                            processedMarkdown += placeholder;
+                            
+                            currentIndex = contentEndIndex + 1;
+                            startRegex.lastIndex = currentIndex;
+                        } else {
+                            processedMarkdown += match[0];
+                            currentIndex = contentStartIndex;
+                        }
+                    }
+                    processedMarkdown += finalMarkdown.substring(currentIndex);
 
                     // Configure Marked
                     // Disable indented code blocks to prevent HTML escaping inside paragraphs
