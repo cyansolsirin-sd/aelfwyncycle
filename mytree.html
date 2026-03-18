@@ -10242,6 +10242,61 @@ return false;
 }
 </script>
 		
+<!-- Custom Styles for AelfwynCycle -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=IM+Fell+English:ital@0;1&family=MedievalSharp&display=swap" rel="stylesheet">
+<style>
+    /* Hide Family Echo UI elements */
+    body > table > tr:first-child, body > table > tbody > tr:first-child { display: none !important; } 
+    body > table > tr:last-child, body > table > tbody > tr:last-child { display: none !important; } 
+    #footerlinks, #footercopy { display: none !important; }
+    #navdiv, #optionsdiv, #filesdiv, #usersdiv, #caltimediv, #extradiv, #uploaddiv, #fadediv { display: none !important; }
+    .mobile { display: none !important; }
+    
+    /* Hide original leftdiv content except our custom sidebar */
+    #leftdiv > *:not(#my_custom_sidebar) { display: none !important; }
+    
+    /* Full screen tree */
+    #main { height: 100vh !important; }
+    
+    /* Adjust left sidebar */
+    .dleft { width: 350px !important; border-right: none !important; }
+    .marginon { margin-left: 350px !important; }
+    
+    /* Parchment background for pathdiv */
+    #pathdiv {
+        font-family: 'Microsoft YaHei', sans-serif !important;
+        color: #5A3A22 !important;
+        background-color: #fdf5e6 !important;
+        background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png') !important;
+        border-right: 4px double #8B4513 !important;
+        padding: 30px 20px !important;
+        box-sizing: border-box !important;
+    }
+    #pathdiv .sbutton {
+        background-color: #8B4513 !important;
+        color: white !important;
+        border: none !important;
+        padding: 8px 16px !important;
+        border-radius: 4px !important;
+        cursor: pointer !important;
+        font-family: 'Microsoft YaHei', sans-serif !important;
+    }
+    #pathdiv select {
+        padding: 5px;
+        border: 1px solid #D4AF37;
+        border-radius: 4px;
+        background-color: #fff8dc;
+        color: #5A3A22;
+        font-family: 'Microsoft YaHei', sans-serif;
+    }
+    
+    /* Parchment background for tree */
+    #treediv { 
+        background-color: #f2e8d5 !important; 
+        background-image: url('https://www.transparenttextures.com/patterns/parchment.png') !important; 
+    }
+    #treebg { background: transparent !important; }
+</style>
 			</HEAD>
 	
 	<BODY CLASS="light" onLoad="PL();" onResize="EPR();" onKeyDown="EPK();">
@@ -15409,6 +15464,204 @@ Birth date:         1588
 			</TR>
 		</TABLE>
 		
+<!-- Custom Sidebar Logic for AelfwynCycle -->
+<script>
+var generations = {};
+
+function calculateGenerations() {
+    generations = {};
+    var visited = {};
+    
+    // Priority 1: Start from 'START' (Aelfwyn) and set her as Generation 1
+    if (Efa['START']) {
+        var queue = ['START'];
+        generations['START'] = 1;
+        visited['START'] = true;
+        
+        while(queue.length > 0) {
+            var curr = queue.shift();
+            var gen = generations[curr];
+            var p = Efa[curr];
+            if(!p) continue;
+
+            for(var partnerId in p.pc) {
+                if(!visited[partnerId]) {
+                    generations[partnerId] = gen;
+                    visited[partnerId] = true;
+                    queue.push(partnerId);
+                }
+            }
+            if(p.c) {
+                for(var i=0; i<p.c.length; i++) {
+                    var childId = p.c[i];
+                    if(!visited[childId]) {
+                        generations[childId] = gen + 1;
+                        visited[childId] = true;
+                        queue.push(childId);
+                    }
+                }
+            }
+            var parentIds = [p.m, p.f, p.X, p.Y, p.K, p.L];
+            for(var i=0; i<parentIds.length; i++) {
+                var parentId = parentIds[i];
+                if(parentId && !visited[parentId]) {
+                    generations[parentId] = gen - 1;
+                    visited[parentId] = true;
+                    queue.push(parentId);
+                }
+            }
+        }
+    }
+
+    // Priority 2: Handle any disconnected components
+    for (var startId in Efa) {
+        if (visited[startId]) continue;
+        
+        var compGens = {};
+        compGens[startId] = 0;
+        var queue = [startId];
+        visited[startId] = true;
+        
+        while(queue.length > 0) {
+            var curr = queue.shift();
+            var gen = compGens[curr];
+            var p = Efa[curr];
+            if(!p) continue;
+
+            for(var partnerId in p.pc) {
+                if(!visited[partnerId]) {
+                    compGens[partnerId] = gen;
+                    visited[partnerId] = true;
+                    queue.push(partnerId);
+                }
+            }
+            if(p.c) {
+                for(var i=0; i<p.c.length; i++) {
+                    var childId = p.c[i];
+                    if(!visited[childId]) {
+                        compGens[childId] = gen + 1;
+                        visited[childId] = true;
+                        queue.push(childId);
+                    }
+                }
+            }
+            var parentIds = [p.m, p.f, p.X, p.Y, p.K, p.L];
+            for(var i=0; i<parentIds.length; i++) {
+                var parentId = parentIds[i];
+                if(parentId && !visited[parentId]) {
+                    compGens[parentId] = gen - 1;
+                    visited[parentId] = true;
+                    queue.push(parentId);
+                }
+            }
+        }
+        
+        var minGen = Infinity;
+        for (var id in compGens) {
+            if (compGens[id] < minGen) minGen = compGens[id];
+        }
+        
+        for (var id in compGens) {
+            generations[id] = compGens[id] - minGen + 1;
+        }
+    }
+    generations['CALCULATED'] = true;
+}
+
+var originalSSE = SSE;
+SSE = function(i, e) {
+    originalSSE(i, e);
+    setTimeout(function() { renderCustomSidebar(i); }, 10);
+};
+
+function renderCustomSidebar(i) {
+    if (!generations['CALCULATED']) calculateGenerations();
+
+    var p = Efa[i];
+    if (!p) return;
+
+    var gen = generations[i] || "?";
+    var name = FDN(p, false, 1, NGS(), false, true) || "Unknown";
+    var gender = (p.g == 'f') ? 'Female' : (p.g == 'm' ? 'Male' : 'Other');
+    var birthYear = p.b ? FYT(p.b) : "Unknown";
+
+    var parentsHtml = "";
+    var motherId = p.m || p.X || p.K;
+    var fatherId = p.f || p.Y || p.L;
+    
+    function getParentLink(parentId) {
+        if (!parentId) return "";
+        var parent = Efa[parentId];
+        if (!parent) return "";
+        var pName = FDN(parent, false, 1, NGS(), false, true);
+        return '<a href="#" onclick="ESP(\'' + parentId + '\', true); return false;" style="display:block; color:#8B4513; text-decoration:underline; margin-bottom:6px; font-size:16px;">' + pName + '</a>';
+    }
+    
+    if (motherId) parentsHtml += getParentLink(motherId);
+    if (fatherId) parentsHtml += getParentLink(fatherId);
+    
+    if (!parentsHtml) parentsHtml = "<span style='color:#888; font-size:16px;'>None</span>";
+
+    var partnersHtml = "";
+    for (var pi in p.pc) {
+        var partner = Efa[pi];
+        if (partner) {
+            var pName = FDN(partner, false, 1, NGS(), false, true);
+            partnersHtml += '<a href="#" onclick="ESP(\'' + pi + '\', true); return false;" style="display:block; color:#8B4513; text-decoration:underline; margin-bottom:6px; font-size:16px;">' + pName + '</a>';
+        }
+    }
+    if (!partnersHtml) partnersHtml = "<span style='color:#888; font-size:16px;'>None</span>";
+
+    var childrenHtml = "";
+    if (p.c && p.c.length > 0) {
+        for (var j = 0; j < p.c.length; j++) {
+            var childId = p.c[j];
+            var child = Efa[childId];
+            if (child) {
+                var cName = FDN(child, false, 1, NGS(), false, true);
+                childrenHtml += '<a href="#" onclick="ESP(\'' + childId + '\', true); return false;" style="display:block; color:#8B4513; text-decoration:underline; margin-bottom:6px; font-size:16px;">' + cName + '</a>';
+            }
+        }
+    }
+    if (!childrenHtml) childrenHtml = "<span style='color:#888; font-size:16px;'>None</span>";
+
+    var html = '<div style="padding: 30px 20px; font-family: \'Microsoft YaHei\', sans-serif; color: #5A3A22; background-color: #fdf5e6; background-image: url(\'https://www.transparenttextures.com/patterns/aged-paper.png\'); height: 100%; box-sizing: border-box; border-right: 4px double #8B4513; overflow-y: auto;">' +
+        '<h2 style="text-align: center; color: #DC143C; font-family: \'Cinzel Decorative\', cursive; border-bottom: 2px solid #D4AF37; padding-bottom: 15px; margin-top: 0; font-size: 28px;">' + name + '</h2>' +
+        '<div style="font-size: 16px; line-height: 1.8; margin-top: 20px;">' +
+            '<p style="margin-bottom: 10px; text-align: center; font-size: 18px;"><strong style="color:#2c2c2c;">Generation ' + gen + '</strong></p>' +
+            '<div style="text-align: center; margin-bottom: 20px;">' +
+                '<button onclick="ESM(\'path\'); return false;" style="background-color: #8B4513; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: \'Microsoft YaHei\', sans-serif; font-size: 14px;">Find Relationship</button>' +
+            '</div>' +
+            '<p style="margin-bottom: 10px; border-bottom: 1px dashed #D4AF37; padding-bottom: 5px;"><strong style="color:#2c2c2c;">Gender:</strong> ' + gender + '</p>' +
+            '<p style="margin-bottom: 10px; border-bottom: 1px dashed #D4AF37; padding-bottom: 5px;"><strong style="color:#2c2c2c;">Birth date:</strong> ' + birthYear + '</p>' +
+            '<div style="margin-top: 20px;">' +
+                '<strong style="color:#2c2c2c; display:block; margin-bottom:8px;">Parent(s):</strong>' +
+                '<div style="padding-left: 15px; border-left: 2px solid #D4AF37;">' + parentsHtml + '</div>' +
+            '</div>' +
+            '<div style="margin-top: 20px;">' +
+                '<strong style="color:#2c2c2c; display:block; margin-bottom:8px;">Partner(s):</strong>' +
+                '<div style="padding-left: 15px; border-left: 2px solid #D4AF37;">' + partnersHtml + '</div>' +
+            '</div>' +
+            '<div style="margin-top: 20px;">' +
+                '<strong style="color:#2c2c2c; display:block; margin-bottom:8px;">Children:</strong>' +
+                '<div style="padding-left: 15px; border-left: 2px solid #D4AF37;">' + childrenHtml + '</div>' +
+            '</div>' +
+        '</div>' +
+    '</div>';
+
+    var leftDiv = document.getElementById('leftdiv');
+    if (leftDiv) {
+        var customSidebar = document.getElementById('my_custom_sidebar');
+        if (!customSidebar) {
+            customSidebar = document.createElement('div');
+            customSidebar.id = 'my_custom_sidebar';
+            customSidebar.style.height = '100%';
+            leftDiv.appendChild(customSidebar);
+        }
+        customSidebar.innerHTML = html;
+    }
+}
+</script>
 	</BODY>
 
 </HTML>
